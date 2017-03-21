@@ -76,9 +76,16 @@ class Logger {
         }
         break
       case 'redis':
+        let splitted = target.host.split(':'),
+            host = target.host,
+            port = target.port
+        if (splitted.length === 2){
+          host = splitted[0]
+          port = splitted[1]
+        }
         transport = new winston.transports.Redis({
-          host: target.host,
-          port: target.port,
+          host: host,
+          port: port,
           container: target.key
         })
         break

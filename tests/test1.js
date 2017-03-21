@@ -4,7 +4,7 @@ var config = {
   targets: [
     {type: 'stdout'},
     {type: 'file', path: 'trace.log'},
-    {type: 'redis', host: '127.0.0.1', port: 6381, key: 'test'}
+    {type: 'redis', host: '192.168.2.67:7396', key: 'test'}
   ]
 }
 var logger = require('swn-logger').create('test1', config)
