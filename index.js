@@ -10,33 +10,15 @@ require('winston-redis').Redis
 class Logger {
   constructor(system){
     this.system = system
-    this.winston = null // underlying winston logger
-    var targets = []
-
-    // create a transport for each target defined in config
-    for (let tgt of Logger.config.targets){
-      let transport = this._setTransport(tgt)
-      if (transport != null){
-        transport.on('error', (err) => {return}) // suppress errors when there's an error with the transport
-        targets.push(transport)
-      }
-    }
-
-    if (Logger.config.colors != null)
-      winston.addColors(Logger.config.colors)
-
-    this.winston = new winston.Logger({
-      level: Logger.config.level || 'info', // default level is info
-      transports: targets
-    })
-    this._write('debug', `${targets.length} log targets registered`, {system: this.system})
+    var targetCount = Object.keys(Logger._winston.transports).length
+    this._write('debug', `${targetCount} targets OK`, {system: this.system})
   }
 
   // internal method
   _write(level, msg, data){
     data = data || {}
     data.system = this.system
-    this.winston.log(level, msg, data)
+    Logger._winston.log(level, msg, data)
   }
 
   // dedicated methods for each level
@@ -54,10 +36,12 @@ class Logger {
 
   // Logs an error
   // @err: VError instance or string
-  // @data: additional data when err is a string, interpolated using winston syntax
+  // @data: (object, optional) additional data when err is a string
   error(err, data){
-    if (err instanceof VError){
-      let stack = err.stack.substr(8),
+    var isVError = err instanceof VError
+
+    if (isVError || err instanceof Error){
+      let stack = err.stack.substr(isVError ? 8: 7),
           currentErr = err
 
       while (currentErr != null && typeof currentErr.cause === 'function'){
@@ -72,7 +56,7 @@ class Logger {
   }
 
   // creates a transport for the given target
-  _setTransport(target){
+  static _setTransport(target){
     let transport = null
     switch (target.type) {
       case 'stdout':
@@ -104,13 +88,42 @@ class Logger {
     return transport
   }
 
+  // creates underlying winston instance
+  static _createWinston(config){
+    var targets = []
+
+    // creates a transport for each target defined in config
+    for (let tgt of config.targets){
+      let transport = Logger._setTransport(tgt)
+      if (transport != null){
+        transport.on('error', (err) => {return}) // suppress transport errors
+        targets.push(transport)
+      }
+    }
+
+    if (config.colors != null)
+      winston.addColors(config.colors)
+
+    Logger._winston = new winston.Logger({
+      level: config.level,
+      transports: targets
+    })
+  }
+
   // Instanciates the logger class for the given system.
-  // If no config is provided and internal config is not defined, default to sdtout.
+  // If no config is provided and internal config is not defined, default to sdtout, debug level.
   // @system: (string) the logger system, e.g. the module using the logger
   // @config: (object, optional) logger configuration. Must be provided by the first logger of the application.
   static create(system, config){
-    if (Logger.config == null)
-      Logger.config = config || {targets: [{type: 'stdout'}]}
+    if (Logger._winston == null){
+      // set default config if not provided
+      config = config || {
+        level: 'debug',
+        targets: [{type: 'stdout'}]
+      }
+      Logger._createWinston(config)
+    }
+
     return new Logger(system)
   }
 }
