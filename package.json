@@ -1,0 +1,28 @@
+{
+  "name": "swn-logger",
+  "version": "1.0.0",
+  "description": "Logging utility built over winston",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Swaven/swn-node-logger.git"
+  },
+  "keywords": [
+    "winston",
+    "logging"
+  ],
+  "author": "Swaven",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Swaven/swn-node-logger/issues"
+  },
+  "homepage": "https://github.com/Swaven/swn-node-logger#readme",
+  "dependencies": {
+    "verror": "^1.9.0",
+    "winston": "^2.3.1",
+    "winston-redis": "^1.0.0"
+  }
+}
