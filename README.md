@@ -29,13 +29,14 @@ Possible values:`debug`, `info`, `warn`, `error`. Required level for events to b
 
 - `targets`: Array of object. Defines log targets.  
 Properties:  
- - `type`: Possible values: `stdout`, `file`, `redis`. Output destination,
- - `path`: for file logging, path to the log file relative to current folder,
- - `host`, `port`: for redis logging, connection details to the target redis instance. `port` is ignored if `host` contains both, separated by colon `:`,
- - `key`: for redis logging, which key is used to store the event.
+  - `type`: Possible values: `stdout`, `file`, `redis`. Output destination,
+  - `path`: for file logging, path to the log file relative to current folder,
+  - `host`, `port`: for redis logging, connection details to the target redis instance. `port` is ignored if `host` contains both, separated by colon `:`,
+  - `key`: for redis logging, which key is used to store the event.
 
 
-- `colors`: object. define alternate colors for stdout output. Each key is a log level, value is the associated color.
+- `colors`: object. Define alternate colors for stdout output. Each key is a log level, value is the associated color.
+- `quiet`: boolean. Set to false to output system registration message. Default: true.
 
 ### `debug(msg, [data])`
 ### `warn(msg, [data])`
@@ -62,7 +63,7 @@ Logs an error.
 
 ### Configuration example
 
-````
+````javascript
 var config = {
   level: 'debug',
   targets: [

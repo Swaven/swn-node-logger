@@ -10,8 +10,11 @@ require('winston-redis').Redis
 class Logger {
   constructor(system){
     this.system = system
-    var targetCount = Object.keys(Logger._winston.transports).length
-    this._write('debug', `${targetCount} targets OK`, {system: this.system})
+    
+    if (!Logger.quiet){
+      let targetCount = Object.keys(Logger._winston.transports).length
+      this._write('debug', `${targetCount} targets OK`, {system: this.system})
+    }
   }
 
   // internal method
@@ -128,6 +131,7 @@ class Logger {
         level: 'debug',
         targets: [{type: 'stdout'}]
       }
+      Logger.quiet = typeof config.quiet === 'boolean' ? config.quiet : true      
       Logger._createWinston(config)
     }
 
