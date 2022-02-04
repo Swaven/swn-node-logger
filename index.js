@@ -114,7 +114,7 @@ class Logger {
     if (config.colors != null)
       winston.addColors(config.colors)
 
-    Logger._winston = new winston.Logger({
+    Logger._winston = winston.createLogger({
       level: config.level,
       transports: targets
     })
