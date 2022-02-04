@@ -1,6 +1,6 @@
 {
   "name": "swn-logger",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "Logging utility built over winston",
   "main": "index.js",
   "scripts": {
@@ -21,8 +21,8 @@
   },
   "homepage": "https://github.com/Swaven/swn-node-logger#readme",
   "dependencies": {
-    "verror": "^1.10.0",
-    "winston": "^2.4.0",
-    "winston-redis": "^1.0.0"
+    "verror": "^1.10.1",
+    "winston": "^3.5.1",
+    "winston-redis": "^3.1.0"
   }
 }
