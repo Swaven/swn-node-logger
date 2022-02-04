@@ -1,11 +1,11 @@
 'use strict'
 
-var winston = require('winston'),
+const winston = require('winston'),
     VError = require('verror'),
     path = require('path'),
     fs = require('fs')
 
-require('winston-redis').Redis
+const redisTransport = require('winston-redis')
 
 class Logger {
   constructor(system){
@@ -86,7 +86,7 @@ class Logger {
           host = splitted[0]
           port = splitted[1]
         }
-        transport = new winston.transports.Redis({
+        transport = new redisTransport({
           host: host,
           port: port,
           container: target.key
