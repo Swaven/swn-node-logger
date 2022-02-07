@@ -63,14 +63,21 @@ class Logger {
     let transport = null
     switch (target.type) {
       case 'stdout':
-        transport = new winston.transports.Console({colorize: true})
+        transport = new winston.transports.Console({
+          format: winston.format.cli({
+              colors: {info: 'cyan', debug: 'grey', warning: 'orange', error: 'red'}
+          })
+        })
         break
       case 'file':
         try {
             // make sure the path is valid. File may not exist but parent directory must.
             let stat = fs.statSync(path.dirname(target.path))
             if (stat.isDirectory())
-              transport = new winston.transports.File({filename: target.path})
+              transport = new winston.transports.File({
+                filename: target.path,
+                format: winston.format.cli()
+              })
             else
               throw new Error(`${path.dirname(target.path)} is not a directory.`)
         }
