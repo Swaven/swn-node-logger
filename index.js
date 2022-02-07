@@ -3,9 +3,12 @@
 const winston = require('winston'),
     VError = require('verror'),
     path = require('path'),
-    fs = require('fs')
+    fs = require('fs'),
+    redis = require('redis')
 
 const redisTransport = require('winston-redis')
+
+let redisClient
 
 class Logger {
   constructor(system){
@@ -21,7 +24,13 @@ class Logger {
   _write(level, msg, data){
     data = data || {}
     data.system = this.system
-    Logger._winston.log(level, msg, data)
+
+    try{
+      Logger._winston.log(level, msg, data)
+    }
+    catch(ex){
+      console.error('Logging error', ex)
+    }
   }
 
   // dedicated methods for each level
@@ -86,16 +95,12 @@ class Logger {
         }
         break
       case 'redis':
-        let splitted = target.host.split(':'),
-            host = target.host,
-            port = target.port
-        if (splitted.length === 2){
-          host = splitted[0]
-          port = splitted[1]
-        }
+        // create our own redis client, to handle disconnects
+        if (!redisClient)
+          redisClient = setRedisClient(target.host)
+
         transport = new redisTransport({
-          host: host,
-          port: port,
+          redis: redisClient,
           container: target.key
         })
         break
@@ -146,3 +151,27 @@ class Logger {
   }
 }
 module.exports = exports = Logger
+
+
+function setRedisClient(host){
+  const [hostName, port] = host.split(':')
+
+  redisClient = redis.createClient({
+    host: hostName,
+    port: +port
+  })
+
+  redisClient.on('connect', () => {
+    console.log('connect')
+  })
+
+  redisClient.on('reconnecting', e => {
+    console.log('reconnecting', e)
+  })
+
+  redisClient.on('error', ex => {
+    console.warn('Redis error', ex)
+  })
+
+  return redisClient
+}
