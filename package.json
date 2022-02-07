@@ -1,6 +1,6 @@
 {
   "name": "swn-logger",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Logging utility built over winston",
   "main": "index.js",
   "scripts": {
@@ -24,5 +24,8 @@
     "verror": "^1.10.1",
     "winston": "^3.5.1",
     "winston-redis": "^3.1.0"
+  },
+  "devDependencies": {
+    "redis": "^2.8.0"
   }
 }

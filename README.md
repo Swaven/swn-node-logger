@@ -18,7 +18,7 @@ mainLogger.info('Error')
 
 Instanciates a logger for the given system.
 
-###### Parameters:
+##### Parameters:
 
 **system** `string`, mandatory. The name of the logger.
 
@@ -44,7 +44,7 @@ Properties:
 
 Logs an event with the appropriate level.
 
-###### Parameters:
+##### Parameters:
 
 **msg** `string`. Event message
 
@@ -54,7 +54,7 @@ Logs an event with the appropriate level.
 
 Logs an error.
 
-###### Parameters:
+##### Parameters:
 
 **err** `string`, `Error` or `VError`. Error to log. If is an instance of Error or VError, the stack trace is logged. See [VError](https://github.com/joyent/node-verror) for more details.
 
@@ -84,3 +84,8 @@ var config = {
 
 var logger = require('swn-logger').create('test1', config)
 ````
+
+# Notes
+
+- the old redis dev dependency is necessary for winston-redis.
+
