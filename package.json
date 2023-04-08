@@ -22,7 +22,7 @@
   "homepage": "https://github.com/Swaven/swn-node-logger#readme",
   "dependencies": {
     "verror": "^1.10.1",
-    "winston": "^3.5.1",
+    "winston": "^3.8.1",
     "winston-redis": "^3.1.0",
     "redis": "^3.1.2"
   }
