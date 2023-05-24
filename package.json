@@ -21,9 +21,13 @@
   },
   "homepage": "https://github.com/Swaven/swn-node-logger#readme",
   "dependencies": {
+    "redis": "^3.1.2",
     "verror": "^1.10.1",
     "winston": "^3.8.1",
-    "winston-redis": "^3.1.0",
-    "redis": "^3.1.2"
+    "winston-redis": "^3.1.0"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
   }
 }
