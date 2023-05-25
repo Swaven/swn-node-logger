@@ -21,6 +21,8 @@
   },
   "homepage": "https://github.com/Swaven/swn-node-logger#readme",
   "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.338.0",
+    "datadog-winston": "^1.5.1",
     "redis": "^3.1.2",
     "verror": "^1.10.1",
     "winston": "^3.8.1",
