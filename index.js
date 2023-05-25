@@ -6,9 +6,12 @@ const winston = require('winston'),
     fs = require('fs'),
     redis = require('redis')
 
+const secretMgr = require('./aws-secrets.js')
 const redisTransport = require('winston-redis')
+const DataDogTransport = require('datadog-winston')
 
 let redisClient
+let _config
 
 class Logger {
   constructor(system){
@@ -47,7 +50,7 @@ class Logger {
   }
 
   // Logs an error
-  // @err: VError instance or string
+  // @err: Error/VError instance or string
   // @data: (object, optional) additional data when err is a string
   error(err, data){
     var isVError = err instanceof VError
@@ -70,6 +73,7 @@ class Logger {
   // creates a transport for the given target
   static _setTransport(target){
     let transport = null
+
     switch (target.type) {
       case 'stdout':
         transport = new winston.transports.Console({
@@ -82,11 +86,12 @@ class Logger {
         try {
             // make sure the path is valid. File may not exist but parent directory must.
             let stat = fs.statSync(path.dirname(target.path))
-            if (stat.isDirectory())
+            if (stat.isDirectory()){
               transport = new winston.transports.File({
                 filename: target.path,
-                format: winston.format.cli()
+                format: winston.format.json()
               })
+            }
             else
               throw new Error(`${path.dirname(target.path)} is not a directory.`)
         }
@@ -104,32 +109,46 @@ class Logger {
           container: target.key
         })
         break
+      case 'datadog':
+        // transport is set asynchronously
+        setupDataDog(target)
+        break
       default:
-        console.log(`Unknown target ${target.path}`)
+        console.log(`Unknown target ${target.type}`)
     }
+
+    if (transport){
+      // console output only for transport errors.
+      transport.on('error', (err) => {console.error(err)})
+    }
+
     return transport
   }
 
   // creates underlying winston instance
   static _createWinston(config){
-    var targets = []
+
+    _config = {
+      level: config.level,
+      transports: []
+    }
 
     // creates a transport for each target defined in config
-    for (let tgt of config.targets){
-      let transport = Logger._setTransport(tgt)
+    for(let tgt of config.targets){
+      const transport = Logger._setTransport(tgt)
+      
       if (transport != null){
-        transport.on('error', (err) => {return}) // suppress transport errors
-        targets.push(transport)
+        _config.transports.push(transport)
       }
     }
+    
+    
+    
 
     if (config.colors != null)
       winston.addColors(config.colors)
 
-    Logger._winston = winston.createLogger({
-      level: config.level,
-      transports: targets
-    })
+    Logger._winston = winston.createLogger(_config)
   }
 
   // Instanciates the logger class for the given system.
@@ -174,4 +193,34 @@ function setRedisClient(host){
   })
 
   return redisClient
+}
+
+// datadog transport needs to retrieve the apikey first.
+// Function updates winston instances when transport is ready.
+async function setupDataDog(target){
+  const opts = {
+    hostname: target.hostname,
+    service: target.service,
+    ddsource: 'nodejs',
+    format: winston.format.json(),
+  }
+
+  if (target.secret){
+    const secret = await secretMgr.getSecret(target.secret)
+      if (typeof secret === 'object')
+        opts.apiKey = secret.key
+      else
+        opts.apiKey = secret
+  }
+
+  const transport = new DataDogTransport(opts)
+  transport.on('error', (err) => {console.error(err)})
+
+  _config.transports.push(transport)
+
+  // reconfigures existing instance, or creates a new one
+  if (Logger._winston)
+    Logger._winston.configure(_config)
+  else
+    Logger._winston = winston.createLogger(_config)
 }
