@@ -64,7 +64,7 @@ class Logger {
         if (currentErr != null)
           stack += '\n  ' + currentErr.stack
       }
-      this._write('error', stack)
+      this._write('error', stack, data)
     }
     else
       this._write('error', err, data)
@@ -77,9 +77,13 @@ class Logger {
     switch (target.type) {
       case 'stdout':
         transport = new winston.transports.Console({
-          format: winston.format.cli({
-              colors: {info: 'cyan', debug: 'grey', warning: 'orange', error: 'red'}
-          })
+          format: winston.format.combine(
+            winston.format.json(),
+            winston.format.colorize({
+              colors: {info: 'cyan', debug: 'grey', warning: 'orange', error: 'red'},
+              all: true
+            })
+          )
         })
         break
       case 'file':

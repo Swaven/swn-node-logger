@@ -25,8 +25,9 @@ setTimeout(() => {
   
   logger.info('pouet', {foo: 'bar', ts: 125})
   logger2.warn('coin')
+  logger2.debug('debug message')
   logger.error('argh')
-  logger.error(new Error('error !'))
+  logger.error(new Error('error !'), {meta: 'baz'})
   logger.error(new VError('verror !'))
   
 }, 2e3)
