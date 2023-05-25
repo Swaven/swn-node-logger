@@ -8,7 +8,7 @@ var config = {
     // {type: 'redis', host: '127.0.0.1:6379', key: 'test'}
     {
       type: 'datadog',
-      name: 'apex-45',
+      service: 'apex-45',
       hostname: 'local-dev',
       secret: 'prd-datadog-wtb-api-key'
     }
