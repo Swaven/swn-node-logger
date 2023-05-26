@@ -20,8 +20,9 @@ const Logger = require('../index.js')
 var logger = Logger.create('test1', config)
 var logger2 = Logger.create('test2')
 
-logger.ready.then(() => {
-  console.log('logger ready')
+logger.ready.then((d) => {
+
+  console.log('logger ready', d)
 
   logger.info('pouet', {foo: 'bar', ts: 125})
   logger.info({foo: 'bar', ts: 125, msg:'json message'})
@@ -33,3 +34,7 @@ logger.ready.then(() => {
   
 })
 
+
+logger2.ready.then((d) => {
+  console.debug('logger2 ready', d)
+})

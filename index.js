@@ -26,7 +26,20 @@ class Logger {
 
   // Promise that resolves when all transports are ready
   get ready(){
-    return _transportPromises ? Promise.all(_transportPromises) : null
+    if (_transportPromises){
+      return Promise.all(_transportPromises).then(()=>{
+        let duration
+        try{
+          performance.measure('winston-ready', 'winston-init-start')
+          duration = performance.getEntriesByName('winston-ready')[0].duration
+        }
+        finally{
+          return {duration}
+        }
+      })
+    }
+      
+    return null
   }
 
   // internal method
@@ -141,6 +154,7 @@ class Logger {
 
   // creates underlying winston instance
   static _createWinston(config){
+    performance.mark('winston-init-start')
 
     _config = {
       level: config.level,
@@ -156,9 +170,6 @@ class Logger {
         _config.transports.push(transport)
       }
     }
-    
-    
-    
 
     if (config.colors != null)
       winston.addColors(config.colors)
