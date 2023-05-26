@@ -20,15 +20,16 @@ const Logger = require('../index.js')
 var logger = Logger.create('test1', config)
 var logger2 = Logger.create('test2')
 
-setTimeout(() => {  
+logger.ready.then(() => {
+  console.log('logger ready')
 
-  
   logger.info('pouet', {foo: 'bar', ts: 125})
+  logger.info({foo: 'bar', ts: 125, msg:'json message'})
   logger2.warn('coin')
   logger2.debug('debug message')
   logger.error('argh')
   logger.error(new Error('error !'), {meta: 'baz'})
   logger.error(new VError('verror !'))
   
-}, 2e3)
+})
 

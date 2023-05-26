@@ -11,7 +11,8 @@ const redisTransport = require('winston-redis')
 const DataDogTransport = require('datadog-winston')
 
 let redisClient
-let _config
+let _config // winston config object
+let _transportPromises // array of promises for each transport
 
 class Logger {
   constructor(system){
@@ -21,6 +22,11 @@ class Logger {
       let targetCount = Object.keys(Logger._winston.transports).length
       this._write('debug', `${targetCount} targets OK`, {system: this.system})
     }
+  }
+
+  // Promise that resolves when all transports are ready
+  get ready(){
+    return _transportPromises ? Promise.all(_transportPromises) : null
   }
 
   // internal method
@@ -85,22 +91,25 @@ class Logger {
             })
           )
         })
+        _transportPromises.push(Promise.resolve())
         break
       case 'file':
         try {
-            // make sure the path is valid. File may not exist but parent directory must.
-            let stat = fs.statSync(path.dirname(target.path))
-            if (stat.isDirectory()){
-              transport = new winston.transports.File({
-                filename: target.path,
-                format: winston.format.json()
-              })
-            }
-            else
-              throw new Error(`${path.dirname(target.path)} is not a directory.`)
+          // make sure the path is valid. File may not exist but parent directory must.
+          let stat = fs.statSync(path.dirname(target.path))
+          if (stat.isDirectory()){
+            transport = new winston.transports.File({
+              filename: target.path,
+              format: winston.format.json()
+            })
+          }
+          else
+            throw new Error(`${path.dirname(target.path)} is not a directory.`)
+          _transportPromises.push(Promise.resolve())
         }
         catch(err){
           console.log(`Cannot use file ${target.path}: ${err.message}`)
+          _transportPromises.push(Promise.reject())
         }
         break
       case 'redis':
@@ -112,10 +121,11 @@ class Logger {
           redis: redisClient,
           container: target.key
         })
+        _transportPromises.push(Promise.resolve())
         break
       case 'datadog':
         // transport is set asynchronously
-        setupDataDog(target)
+        _transportPromises.push(setupDataDog(target))
         break
       default:
         console.log(`Unknown target ${target.type}`)
@@ -136,6 +146,7 @@ class Logger {
       level: config.level,
       transports: []
     }
+    _transportPromises = []
 
     // creates a transport for each target defined in config
     for(let tgt of config.targets){
@@ -201,7 +212,7 @@ function setRedisClient(host){
 
 // datadog transport needs to retrieve the apikey first.
 // Function updates winston instances when transport is ready.
-async function setupDataDog(target){
+function setupDataDog(target){
   const opts = {
     hostname: target.hostname,
     service: target.service,
@@ -209,22 +220,35 @@ async function setupDataDog(target){
     format: winston.format.json(),
   }
 
-  if (target.secret){
-    const secret = await secretMgr.getSecret(target.secret)
-      if (typeof secret === 'object')
-        opts.apiKey = secret.key
+  return new Promise(async (resolve, reject) => {
+    try{
+      // retrieve api key from secret manager
+      if (target.secret){
+        const secret = await secretMgr.getSecret(target.secret)
+          if (typeof secret === 'object')
+            opts.apiKey = secret.key
+          else
+            opts.apiKey = secret
+      }
+      else{
+        return reject('No secret provided for datadog transport')
+      }
+
+      const transport = new DataDogTransport(opts)
+      transport.on('error', (err) => {console.error(err)})
+
+      _config.transports.push(transport)
+
+      // reconfigures existing instance, or creates a new one
+      if (Logger._winston)
+        Logger._winston.configure(_config)
       else
-        opts.apiKey = secret
-  }
+        Logger._winston = winston.createLogger(_config)
 
-  const transport = new DataDogTransport(opts)
-  transport.on('error', (err) => {console.error(err)})
-
-  _config.transports.push(transport)
-
-  // reconfigures existing instance, or creates a new one
-  if (Logger._winston)
-    Logger._winston.configure(_config)
-  else
-    Logger._winston = winston.createLogger(_config)
+      resolve()
+    }
+    catch(ex){
+      reject(ex)
+    }
+  })
 }

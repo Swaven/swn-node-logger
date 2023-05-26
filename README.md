@@ -51,7 +51,7 @@ Possible values:`debug`, `info`, `warn`, `error`. Required level for events to b
 
 Logs an event with the appropriate level.
 
-##### Parameters:
+#### Parameters:
 
 **msg** `string`. Event message
 
@@ -67,8 +67,12 @@ Logs an error.
 
 **data** `object`. Optional data, added to event if `msg` is a string.
 
+### `ready`
 
-### Configuration example
+Returns a promise that resolves when all transports are initialized. Logging before that means losing logging for transports that are not ready.
+
+
+## Configuration example
 
 ````javascript
 var config = {
@@ -96,6 +100,8 @@ var config = {
 }
 
 var logger = require('swn-logger').create('test1', config)
+
+await logger.ready
 ````
 
 # Notes
