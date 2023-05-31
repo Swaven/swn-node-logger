@@ -1,18 +1,40 @@
 var VError = require('verror')
 var config = {
   level: 'debug',
+  // quiet: false,
   targets: [
     {type: 'stdout'},
-    {type: 'file', path: 'trace.log'},
-    {type: 'redis', host: '192.168.2.67:7396', key: 'test'}
+    // {type: 'file', path: 'trace.log'},
+    // {type: 'redis', host: '127.0.0.1:6379', key: 'test'}
+    {
+      type: 'datadog',
+      service: 'apex-45',
+      hostname: 'local-dev',
+      secret: 'prd-datadog-wtb-api-key'
+    }
   ]
 }
-var logger = require('swn-logger').create('test1', config)
-var logger2 = require('swn-logger').create('test2')
 
-logger.info('pouet')
-logger2.info('coin')
-logger.error('argh')
-logger.error(new Error('error !'))
-logger.error(new VError('verror !'))
-logger.error('error', {w: 'world'})
+const Logger = require('../index.js')
+
+var logger = Logger.create('test1', config)
+var logger2 = Logger.create('test2')
+
+logger.ready.then((d) => {
+
+  console.log('logger ready', d)
+
+  logger.info('pouet', {foo: 'bar', ts: 125})
+  logger.info({foo: 'bar', ts: 125, msg:'json message'})
+  logger2.warn('coin')
+  logger2.debug('debug message')
+  logger.error('argh')
+  logger.error(new Error('error !'), {meta: 'baz'})
+  logger.error(new VError('verror !'))
+  
+})
+
+
+logger2.ready.then((d) => {
+  console.debug('logger2 ready', d)
+})
