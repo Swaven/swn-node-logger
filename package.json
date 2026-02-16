@@ -1,6 +1,6 @@
 {
   "name": "swn-logger",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Logging utility built over winston",
   "main": "index.js",
   "scripts": {
