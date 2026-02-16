@@ -10,26 +10,31 @@
     "type": "git",
     "url": "git+https://github.com/Swaven/swn-node-logger.git"
   },
-  "keywords": [
-    "winston",
-    "logging"
-  ],
+  "keywords": ["winston", "logging"],
   "author": "Swaven",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Swaven/swn-node-logger/issues"
   },
   "homepage": "https://github.com/Swaven/swn-node-logger#readme",
+  "overrides": {
+    "winston-redis": {
+      "redis": "$redis"
+    },
+    "mocha": {
+      "diff": "^8.0.3"
+    }
+  },
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.338.0",
-    "datadog-winston": "^1.5.1",
-    "redis": "^3.1.2",
+    "@aws-sdk/client-secrets-manager": "^3.990.0",
+    "datadog-winston": "^1.6.0",
+    "redis": "^5.10.0",
     "verror": "^1.10.1",
-    "winston": "^3.8.1",
+    "winston": "^3.19.0",
     "winston-redis": "^3.1.0"
   },
   "devDependencies": {
-    "chai": "^4.3.7",
-    "mocha": "^10.2.0"
+    "chai": "^6.2.2",
+    "mocha": "^11.7.5"
   }
 }
