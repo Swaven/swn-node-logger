@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/Swaven/swn-node-logger#readme",
   "overrides": {
-    "fast-xml-parser": "5.7.0",
+    "fast-xml-parser": "5.9.3",
     "winston-redis": {
       "redis": "$redis"
     },
