@@ -1,6 +1,6 @@
 {
   "name": "swn-logger",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "description": "Logging utility built over winston",
   "main": "index.js",
   "scripts": {
@@ -18,16 +18,12 @@
   },
   "homepage": "https://github.com/Swaven/swn-node-logger#readme",
   "overrides": {
-    "fast-xml-parser": "5.9.3",
     "winston-redis": {
       "redis": "$redis"
-    },
-    "mocha": {
-      "diff": "^8.0.3"
     }
   },
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.990.0",
+    "@aws-sdk/client-secrets-manager": "^3.1176.0",
     "datadog-winston": "^1.6.0",
     "redis": "^5.10.0",
     "verror": "^1.10.1",
@@ -36,6 +32,6 @@
   },
   "devDependencies": {
     "chai": "^6.2.2",
-    "mocha": "^11.7.5"
+    "mocha": "^12.0.3"
   }
 }
